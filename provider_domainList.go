@@ -33,6 +33,11 @@ func (p providerdomainList) GetDomainList(d providerDefinition) ([]entry, error)
 
 		domain := strings.TrimSpace(scanner.Text())
 
+		if strings.Contains(domain, " ") {
+			logger.WithField("line", scanner.Text()).Warn("Invalid line found")
+			continue
+		}
+
 		if isBlacklisted(domain) {
 			logger.WithField("domain", domain).Debug("Skipping because of blacklist")
 			continue
