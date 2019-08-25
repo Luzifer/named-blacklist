@@ -60,9 +60,12 @@ func main() {
 		go func(p providerDefinition) {
 			defer wg.Done()
 
+			logger := log.WithField("provider", p.Name)
+			logger.Info("Starting domain list extraction")
+
 			entries, err := getDomainList(p)
 			if err != nil {
-				log.WithField("provider", p.Name).
+				logger.
 					WithError(err).
 					Fatal("Unable to get domain list")
 			}
@@ -80,10 +83,12 @@ func main() {
 					whitelist = addIfNotExists(whitelist, e)
 
 				default:
-					log.WithField("provider", p.Name).Fatalf("Inavlid action %q", p.Action)
+					logger.Fatalf("Inavlid action %q", p.Action)
 
 				}
 			}
+
+			logger.WithField("no_entries", len(entries)).Info("Extraction complete")
 		}(p)
 
 	}
