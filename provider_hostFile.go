@@ -27,7 +27,7 @@ func (p providerHostFile) GetDomainList(d providerDefinition) ([]entry, error) {
 
 	var (
 		entries []entry
-		matcher = regexp.MustCompile(`^(?:[0-9.]+|[a-z0-9:]+)\s+([^\s]+)(?:\s+#(.+))?$`)
+		matcher = regexp.MustCompile(`^(?:[0-9.]+|[a-z0-9:]+)\s+([^\s]+)(?:\s+#(.+)|\s+#)?$`)
 	)
 
 	scanner := bufio.NewScanner(r)
