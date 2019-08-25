@@ -10,6 +10,8 @@ import (
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
+
+	korvike "github.com/Luzifer/korvike/functions"
 )
 
 const defaultTemplate = `$TTL 1H
@@ -82,9 +84,13 @@ func loadConfigFile(filename string) (*configfile, error) {
 		return nil, errors.Wrap(err, "Unable to parse given file")
 	}
 
-	if out.tpl, err = template.New("configTemplate").Funcs(template.FuncMap{
-		"to_punycode": domainToPunycode,
-	}).Parse(out.Template); err != nil {
+	funcs := korvike.GetFunctionMap()
+	funcs["to_punycode"] = domainToPunycode
+
+	if out.tpl, err = template.
+		New("configTemplate").
+		Funcs(funcs).
+		Parse(out.Template); err != nil {
 		return nil, errors.Wrap(err, "Unable to parse given template")
 	}
 
