@@ -57,7 +57,7 @@ func (p providerDefinition) GetContent() (io.ReadCloser, error) {
 		return os.Open(p.File)
 
 	case p.URL != "":
-		resp, err := http.Get(p.URL)
+		resp, err := http.Get(p.URL) //nolint:bodyclose // This does not need to be closed here and would break stuff
 		return resp.Body, err
 
 	default:
