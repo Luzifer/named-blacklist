@@ -106,25 +106,14 @@ func main() {
 }
 
 func addIfNotExists(entries []entry, e entry) []entry {
-	var (
-		found bool
-		out   []entry
-	)
-
-	for _, pe := range entries {
+	for i, pe := range entries {
 		if pe.Domain == e.Domain {
-			found = true
-			pe.Comment = strings.Join([]string{pe.Comment, e.Comment}, ", ")
+			entries[i].Comment = strings.Join([]string{pe.Comment, e.Comment}, ", ")
+			return entries
 		}
-
-		out = append(out, pe)
 	}
 
-	if !found {
-		out = append(out, e)
-	}
-
-	return out
+	return append(entries, e)
 }
 
 func cleanFromList(blacklist, whitelist []entry) []entry {

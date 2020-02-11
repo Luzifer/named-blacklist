@@ -54,7 +54,7 @@ func (p providerHostFile) GetDomainList(d providerDefinition) ([]entry, error) {
 			continue
 		}
 
-		comment := fmt.Sprintf("From: %q", d.Name)
+		comment := fmt.Sprintf("%q", d.Name)
 		if len(groups) == 3 && strings.Trim(groups[2], "#") != "" {
 			comment = fmt.Sprintf("%s, Comment: %q",
 				comment,
