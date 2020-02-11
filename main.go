@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -105,14 +106,25 @@ func main() {
 }
 
 func addIfNotExists(entries []entry, e entry) []entry {
+	var (
+		found bool
+		out   []entry
+	)
+
 	for _, pe := range entries {
 		if pe.Domain == e.Domain {
-			// Entry already exists, skip
-			return entries
+			found = true
+			pe.Comment = strings.Join([]string{pe.Comment, e.Comment}, ", ")
 		}
+
+		out = append(out, pe)
 	}
 
-	return append(entries, e)
+	if !found {
+		out = append(out, e)
+	}
+
+	return out
 }
 
 func cleanFromList(blacklist, whitelist []entry) []entry {
