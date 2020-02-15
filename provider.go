@@ -12,8 +12,8 @@ var (
 )
 
 type entry struct {
-	Domain  string
-	Comment string
+	Domain   string
+	Comments []string
 }
 
 type provider interface {

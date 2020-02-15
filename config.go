@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -86,6 +87,11 @@ func loadConfigFile(filename string) (*configfile, error) {
 
 	funcs := korvike.GetFunctionMap()
 	funcs["to_punycode"] = domainToPunycode
+	funcs["join"] = strings.Join
+	funcs["sort"] = func(in []string) []string {
+		sort.Slice(in, func(i, j int) bool { return strings.ToLower(in[i]) < strings.ToLower(in[j]) })
+		return in
+	}
 
 	if out.tpl, err = template.
 		New("configTemplate").

@@ -63,8 +63,8 @@ func (p providerHostFile) GetDomainList(d providerDefinition) ([]entry, error) {
 		}
 
 		entries = append(entries, entry{
-			Domain:  groups[1],
-			Comment: comment,
+			Domain:   groups[1],
+			Comments: []string{comment},
 		})
 	}
 

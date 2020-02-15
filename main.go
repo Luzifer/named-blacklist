@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"sort"
-	"strings"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -108,7 +107,7 @@ func main() {
 func addIfNotExists(entries []entry, e entry) []entry {
 	for i, pe := range entries {
 		if pe.Domain == e.Domain {
-			entries[i].Comment = strings.Join([]string{pe.Comment, e.Comment}, ", ")
+			entries[i].Comments = append(pe.Comments, e.Comments...)
 			return entries
 		}
 	}

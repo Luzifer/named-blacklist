@@ -44,8 +44,8 @@ func (p providerdomainList) GetDomainList(d providerDefinition) ([]entry, error)
 		}
 
 		entries = append(entries, entry{
-			Domain:  domain,
-			Comment: d.Name,
+			Domain:   domain,
+			Comments: []string{d.Name},
 		})
 	}
 
