@@ -61,7 +61,10 @@ func (p providerDefinition) GetContent() (io.ReadCloser, error) {
 
 	case p.URL != "":
 		resp, err := http.Get(p.URL) //nolint:bodyclose // This does not need to be closed here and would break stuff
-		return resp.Body, err
+		if err != nil {
+			return nil, errors.Wrap(err, "downloading content")
+		}
+		return resp.Body, nil
 
 	default:
 		return nil, errors.New("Neither file nor URL specified")
