@@ -6,8 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -16,14 +15,19 @@ func init() {
 
 type providerHostFile struct{}
 
-func (p providerHostFile) GetDomainList(d providerDefinition) ([]entry, error) {
+func (providerHostFile) GetDomainList(d providerDefinition) ([]entry, error) {
 	r, err := d.GetContent()
 	if err != nil {
-		return nil, errors.Wrap(err, "Unable to get source content")
+		return nil, fmt.Errorf("getting source content: %w", err)
 	}
-	defer r.Close()
 
-	logger := log.WithField("provider", d.Name)
+	defer func() {
+		if err := r.Close(); err != nil {
+			logrus.WithError(err).Error("closing domain-list")
+		}
+	}()
+
+	logger := logrus.WithField("provider", d.Name)
 
 	var (
 		entries []entry
@@ -44,7 +48,7 @@ func (p providerHostFile) GetDomainList(d providerDefinition) ([]entry, error) {
 		}
 
 		groups := matcher.FindStringSubmatch(line)
-		if len(groups) < 2 {
+		if len(groups) < 2 { //nolint:mnd
 			logger.WithField("line", line).Warn("Invalid line found (groups)")
 			continue
 		}

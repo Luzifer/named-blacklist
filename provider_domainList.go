@@ -2,10 +2,10 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"strings"
 
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -14,14 +14,18 @@ func init() {
 
 type providerdomainList struct{}
 
-func (p providerdomainList) GetDomainList(d providerDefinition) ([]entry, error) {
+func (providerdomainList) GetDomainList(d providerDefinition) ([]entry, error) {
 	r, err := d.GetContent()
 	if err != nil {
-		return nil, errors.Wrap(err, "Unable to get source content")
+		return nil, fmt.Errorf("getting source content: %w", err)
 	}
-	defer r.Close()
+	defer func() {
+		if err := r.Close(); err != nil {
+			logrus.WithError(err).Error("closing domain-list")
+		}
+	}()
 
-	logger := log.WithField("provider", d.Name)
+	logger := logrus.WithField("provider", d.Name)
 
 	var entries []entry
 
@@ -34,12 +38,12 @@ func (p providerdomainList) GetDomainList(d providerDefinition) ([]entry, error)
 		domain := strings.TrimSpace(scanner.Text())
 
 		if strings.Contains(domain, " ") {
-			logger.WithField("line", scanner.Text()).Warn("Invalid line found")
+			logger.WithField("line", scanner.Text()).Warn("invalid line found")
 			continue
 		}
 
 		if isBlacklisted(domain) {
-			logger.WithField("domain", domain).Debug("Skipping because of blacklist")
+			logger.WithField("domain", domain).Debug("skipping because of blacklist")
 			continue
 		}
 

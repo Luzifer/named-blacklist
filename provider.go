@@ -1,9 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"sync"
-
-	"github.com/pkg/errors"
 )
 
 var (
@@ -27,11 +26,15 @@ func registerProvider(t providerType, p provider) {
 	providerRegistry[t] = p
 }
 
-func getDomainList(p providerDefinition) ([]entry, error) {
+func getDomainList(p providerDefinition) (entries []entry, err error) {
 	pro, ok := providerRegistry[p.Type]
 	if !ok {
-		return nil, errors.Errorf("Unknown provider type %q", p.Type)
+		return nil, fmt.Errorf("unknown provider type %q", p.Type)
 	}
 
-	return pro.GetDomainList(p)
+	if entries, err = pro.GetDomainList(p); err != nil {
+		return nil, fmt.Errorf("getting domain-list: %w", err)
+	}
+
+	return entries, nil
 }

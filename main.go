@@ -6,7 +6,7 @@ import (
 	"sort"
 	"sync"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
 	"github.com/Luzifer/rconfig/v2"
 )
@@ -23,22 +23,19 @@ var (
 	version = "dev"
 )
 
-func init() {
+func initApp() (err error) {
 	rconfig.AutoEnv(true)
-	if err := rconfig.ParseAndValidate(&cfg); err != nil {
-		log.Fatalf("Unable to parse commandline options: %s", err)
+	if err = rconfig.ParseAndValidate(&cfg); err != nil {
+		return fmt.Errorf("parsing CLI options: %w", err)
 	}
 
-	if cfg.VersionAndExit {
-		fmt.Printf("named-blacklist %s\n", version)
-		os.Exit(0)
+	l, err := logrus.ParseLevel(cfg.LogLevel)
+	if err != nil {
+		return fmt.Errorf("parsing log-level: %w", err)
 	}
+	logrus.SetLevel(l)
 
-	if l, err := log.ParseLevel(cfg.LogLevel); err != nil {
-		log.WithError(err).Fatal("Unable to parse log level")
-	} else {
-		log.SetLevel(l)
-	}
+	return nil
 }
 
 func main() {
@@ -50,24 +47,30 @@ func main() {
 		err       error
 	)
 
+	if err = initApp(); err != nil {
+		logrus.WithError(err).Fatal("initializing app")
+	}
+
+	if cfg.VersionAndExit {
+		fmt.Printf("named-blacklist %s\n", version) //nolint:forbidigo
+		os.Exit(0)
+	}
+
 	if config, err = loadConfigFile(cfg.Config); err != nil {
-		log.WithError(err).Fatal("Unable to read config file")
+		logrus.WithError(err).Fatal("reading config file")
 	}
 
 	wg.Add(len(config.Providers))
 	for _, p := range config.Providers {
-
 		go func(p providerDefinition) {
 			defer wg.Done()
 
-			logger := log.WithField("provider", p.Name)
-			logger.Info("Starting domain list extraction")
+			logger := logrus.WithField("provider", p.Name)
+			logger.Info("starting domain list extraction")
 
 			entries, err := getDomainList(p)
 			if err != nil {
-				logger.
-					WithError(err).
-					Fatal("Unable to get domain list")
+				logger.WithError(err).Fatal("getting domain list")
 			}
 
 			write.Lock()
@@ -75,7 +78,6 @@ func main() {
 
 			for _, e := range entries {
 				switch p.Action {
-
 				case providerActionBlacklist:
 					blacklist = addIfNotExists(blacklist, e)
 
@@ -84,13 +86,11 @@ func main() {
 
 				default:
 					logger.Fatalf("Inavlid action %q", p.Action)
-
 				}
 			}
 
-			logger.WithField("no_entries", len(entries)).Info("Extraction complete")
+			logger.WithField("no_entries", len(entries)).Info("extraction complete")
 		}(p)
-
 	}
 
 	wg.Wait()
@@ -99,15 +99,17 @@ func main() {
 
 	sort.Slice(blacklist, func(i, j int) bool { return blacklist[i].Domain < blacklist[j].Domain })
 
-	config.tpl.Execute(os.Stdout, map[string]interface{}{
+	if err = config.tpl.Execute(os.Stdout, map[string]any{
 		"blacklist": blacklist,
-	})
+	}); err != nil {
+		logrus.WithError(err).Fatal("rendering blacklist")
+	}
 }
 
 func addIfNotExists(entries []entry, e entry) []entry {
 	for i, pe := range entries {
 		if pe.Domain == e.Domain {
-			entries[i].Comments = append(pe.Comments, e.Comments...)
+			entries[i].Comments = append(pe.Comments, e.Comments...) //nolint:gocritic // This accumulates comments on an existing entry
 			return entries
 		}
 	}

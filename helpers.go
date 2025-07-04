@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	"golang.org/x/net/idna"
@@ -32,6 +33,9 @@ func isBlacklisted(domain string) bool {
 	return str.StringInSlice(domain, genericBlacklist)
 }
 
-func domainToPunycode(name string, v ...string) (string, error) {
-	return idna.ToASCII(name)
+func domainToPunycode(name string) (s string, err error) {
+	if s, err = idna.ToASCII(name); err != nil {
+		return s, fmt.Errorf("converting domain to punycode: %w", err)
+	}
+	return s, nil
 }
