@@ -1,15 +1,13 @@
 ---
-
 # List of third-party lists to download and include into generated
 # blacklist zone file (entries are just examples and copied from the
 # source of https://github.com/StevenBlack/hosts#sources-of-hosts-data-unified-in-this-variant)
 # Please verify the list matches your interest or compile your own!
-# 
+#
 # Whitelists are applied AFTER all blacklists are compiled together
 # which means an entry in the whitelist will finally remove the domain
 # from the whole blacklist. Provider order does not matter in this case.
 providers:
-
   #- name: Local blacklist
   #  file: blacklist.local
   #  action: blacklist
@@ -19,7 +17,7 @@ providers:
   #  file: whitelist.local
   #  action: whitelist
   #  type: domain-list
-  
+
   #- name: Local whitelist
   #  content: |
   #    my.domain.com
@@ -28,11 +26,6 @@ providers:
 
   - name: Steven Black's ad-hoc list # License: MIT, URL: https://github.com/StevenBlack/hosts/blob/master/data/StevenBlack/hosts
     url: https://raw.githubusercontent.com/StevenBlack/hosts/master/data/StevenBlack/hosts
-    action: blacklist
-    type: hosts-file
-
-  - name: Malware Domain List # License: can be used for free by anyone, URL: https://www.malwaredomainlist.com/
-    url: https://www.malwaredomainlist.com/hostslist/hosts.txt
     action: blacklist
     type: hosts-file
 
@@ -68,11 +61,6 @@ providers:
 
   - name: Mitchell Krog's - Badd Boyz Hosts # License: non-commercial with attribution, URL: https://github.com/mitchellkrogza/Badd-Boyz-Hosts
     url: https://raw.githubusercontent.com/mitchellkrogza/Badd-Boyz-Hosts/master/hosts
-    action: blacklist
-    type: hosts-file
-
-  - name: CoinBlocker # License: GPLv3, URL: https://gitlab.com/ZeroDot1/CoinBlockerLists
-    url: https://zerodot1.gitlab.io/CoinBlockerLists/hosts_browser
     action: blacklist
     type: hosts-file
 
@@ -116,5 +104,3 @@ template: |
   {{ range .blacklist -}}
   {{ to_punycode .Domain }} CNAME . ; {{ .Comments }}
   {{ end }}
-
-...
