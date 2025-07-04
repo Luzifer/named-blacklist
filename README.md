@@ -1,9 +1,3 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/Luzifer/named-blacklist)](https://goreportcard.com/report/github.com/Luzifer/named-blacklist)
-![](https://badges.fyi/github/license/Luzifer/named-blacklist)
-![](https://badges.fyi/github/downloads/Luzifer/named-blacklist)
-![](https://badges.fyi/github/latest-release/Luzifer/named-blacklist)
-![](https://knut.in/project-status/named-blacklist)
-
 # Luzifer / named-blacklist
 
 This repo contains a DNS blacklist generator to be used in combination with [DNS Response Policy Zones](https://www.dnsrpz.info/) in BIND 9.8+.
