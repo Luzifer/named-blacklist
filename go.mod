@@ -2,7 +2,7 @@ module github.com/Luzifer/named-blacklist
 
 go 1.24.0
 
-toolchain go1.24.4
+toolchain go1.24.5
 
 require (
 	github.com/Luzifer/go_helpers/v2 v2.25.0
