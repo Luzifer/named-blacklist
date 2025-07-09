@@ -115,6 +115,8 @@ func (p providerDefinition) fetchURLContent() (io.ReadCloser, error) {
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
 
+	req.Header.Set("User-Agent", fmt.Sprintf("named-blacklist %s (https://github.com/Luzifer/named-blacklist)", version))
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("executing request: %w", err)
