@@ -73,27 +73,38 @@ func main() {
 				logger.WithError(err).Fatal("getting domain list")
 			}
 
-			write.Lock()
-			defer write.Unlock()
+			var local_blacklist []entry
+			var local_whitelist []entry
 
 			for _, e := range entries {
 				switch p.Action {
 				case providerActionBlacklist:
-					blacklist = addIfNotExists(blacklist, e)
+					local_blacklist = append(local_blacklist, e)
 
 				case providerActionWhitelist:
-					whitelist = addIfNotExists(whitelist, e)
+					local_whitelist = append(local_whitelist, e)
 
 				default:
 					logger.Fatalf("Inavlid action %q", p.Action)
 				}
 			}
 
+			write.Lock()
+			defer write.Unlock()
+
+			blacklist = append(blacklist, local_blacklist...)
+			whitelist = append(whitelist, local_whitelist...)
+
 			logger.WithField("no_entries", len(entries)).Info("extraction complete")
 		}(p)
 	}
 
 	wg.Wait()
+
+	logrus.Info("Removing duplicates...")
+	blacklist = removeDuplicateEntries(blacklist)
+	whitelist = removeDuplicateEntries(whitelist)
+	logrus.Info("Done")
 
 	blacklist = cleanFromList(blacklist, whitelist)
 
@@ -104,17 +115,6 @@ func main() {
 	}); err != nil {
 		logrus.WithError(err).Fatal("rendering blacklist")
 	}
-}
-
-func addIfNotExists(entries []entry, e entry) []entry {
-	for i, pe := range entries {
-		if pe.Domain == e.Domain {
-			entries[i].Comments = append(pe.Comments, e.Comments...) //nolint:gocritic // This accumulates comments on an existing entry
-			return entries
-		}
-	}
-
-	return append(entries, e)
 }
 
 func cleanFromList(blacklist, whitelist []entry) []entry {
@@ -136,4 +136,29 @@ func cleanFromList(blacklist, whitelist []entry) []entry {
 	}
 
 	return tmp
+}
+
+func removeDuplicateEntries(list []entry) (unique []entry) {
+	keys := make(map[string]int)
+
+	// for every 'entry' in 'list'
+	for _, e := range list {
+
+		// if map 'keys' contains domain
+		i, contains := keys[e.Domain]
+		if contains {
+			unique[i].Comments = append(unique[i].Comments, e.Comments...)
+		}
+
+		// store index for domain
+		// len 0 = index 0
+		// len 1 = index 1
+		// ...
+		keys[e.Domain] = len(unique)
+
+		// append domain to unique
+		unique = append(unique, e)
+	}
+
+	return unique
 }
