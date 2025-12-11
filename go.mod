@@ -9,7 +9,7 @@ require (
 	github.com/Luzifer/korvike/functions v1.0.2
 	github.com/Luzifer/rconfig/v2 v2.6.0
 	github.com/sirupsen/logrus v1.9.3
-	golang.org/x/net v0.47.0
+	golang.org/x/net v0.48.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -46,9 +46,9 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
-	golang.org/x/crypto v0.44.0 // indirect
-	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/crypto v0.46.0 // indirect
+	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/text v0.32.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 	gopkg.in/validator.v2 v2.0.1 // indirect
 )
