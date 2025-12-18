@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"slices"
 	"sort"
 	"sync"
 
@@ -97,7 +98,9 @@ func main() {
 	whitelist = removeDuplicateEntries(whitelist)
 	logrus.Info("Done")
 
-	blacklist = cleanFromList(blacklist, whitelist)
+	blacklist = slices.DeleteFunc(blacklist, func(be entry) bool {
+		return slices.ContainsFunc(whitelist, func(we entry) bool { return we.Domain == be.Domain })
+	})
 
 	sort.Slice(blacklist, func(i, j int) bool { return blacklist[i].Domain < blacklist[j].Domain })
 
@@ -106,27 +109,6 @@ func main() {
 	}); err != nil {
 		logrus.WithError(err).Fatal("rendering blacklist")
 	}
-}
-
-func cleanFromList(blacklist, whitelist []entry) []entry {
-	var tmp []entry
-
-	for _, be := range blacklist {
-		var found bool
-
-		for _, we := range whitelist {
-			if we.Domain == be.Domain {
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			tmp = append(tmp, be)
-		}
-	}
-
-	return tmp
 }
 
 func removeDuplicateEntries(list []entry) (unique []entry) {
