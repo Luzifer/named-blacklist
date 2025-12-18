@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"context"
@@ -14,6 +14,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	korvike "github.com/Luzifer/korvike/functions"
+	"github.com/Luzifer/named-blacklist/pkg/helpers"
 )
 
 const (
@@ -29,33 +30,40 @@ const (
 )
 
 type (
-	configfile struct {
-		Providers []providerDefinition `yaml:"providers"`
+	// File represents the format the configuration file is expected in
+	File struct {
+		Providers []ProviderDefinition `yaml:"providers"`
 
-		Template string `yaml:"template"`
-		tpl      *template.Template
+		Template         string             `yaml:"template"`
+		CompiledTemplate *template.Template `yaml:"-"`
 	}
 
-	providerAction string
+	// ProviderAction defines the available actions to take with the provider
+	ProviderAction string
 
-	providerDefinition struct {
-		Action  providerAction `yaml:"action"`
+	// ProviderDefinition describes a provider to use for gathering domains
+	ProviderDefinition struct {
+		Action  ProviderAction `yaml:"action"`
 		Content string         `yaml:"content"`
 		File    string         `yaml:"file"`
 		Name    string         `yaml:"name"`
-		Type    providerType   `yaml:"type"`
+		Type    ProviderType   `yaml:"type"`
 		URL     string         `yaml:"url"`
 	}
 
-	providerType string
+	// ProviderType defines the type of provider to execute for this list
+	ProviderType string
 )
 
 const (
-	providerActionBlacklist providerAction = "blacklist"
-	providerActionWhitelist providerAction = "whitelist"
+	// ProviderActionBlacklist defines all domain results should be blocked
+	ProviderActionBlacklist ProviderAction = "blacklist"
+	// ProviderActionWhitelist defines all domain results should be unblocked
+	ProviderActionWhitelist ProviderAction = "whitelist"
 )
 
-func loadConfigFile(filename string) (*configfile, error) {
+// LoadConfigFile reads the configuration and parses the template
+func LoadConfigFile(filename string) (*File, error) {
 	f, err := os.Open(filename) //#nosec:G304 // Intended to load given config file
 	if err != nil {
 		return nil, fmt.Errorf("opening config file: %w", err)
@@ -66,20 +74,20 @@ func loadConfigFile(filename string) (*configfile, error) {
 		}
 	}()
 
-	out := &configfile{Template: defaultTemplate}
+	out := &File{Template: defaultTemplate}
 	if err = yaml.NewDecoder(f).Decode(out); err != nil {
 		return nil, fmt.Errorf("parsing config file: %w", err)
 	}
 
 	funcs := korvike.GetFunctionMap()
-	funcs["to_punycode"] = domainToPunycode
+	funcs["to_punycode"] = helpers.DomainToPunycode
 	funcs["join"] = strings.Join
 	funcs["sort"] = func(in []string) []string {
 		sort.Slice(in, func(i, j int) bool { return strings.ToLower(in[i]) < strings.ToLower(in[j]) })
 		return in
 	}
 
-	if out.tpl, err = template.
+	if out.CompiledTemplate, err = template.
 		New("configTemplate").
 		Funcs(funcs).
 		Parse(out.Template); err != nil {
@@ -89,7 +97,9 @@ func loadConfigFile(filename string) (*configfile, error) {
 	return out, nil
 }
 
-func (p providerDefinition) GetContent() (io.ReadCloser, error) {
+// GetContent retrieves the content of the given list for parsing with
+// a provider
+func (p ProviderDefinition) GetContent(appVersion string) (io.ReadCloser, error) {
 	switch {
 	case p.Content != "":
 		return io.NopCloser(strings.NewReader(p.Content)), nil
@@ -102,14 +112,14 @@ func (p providerDefinition) GetContent() (io.ReadCloser, error) {
 		return f, nil
 
 	case p.URL != "":
-		return p.fetchURLContent()
+		return p.fetchURLContent(appVersion)
 
 	default:
 		return nil, fmt.Errorf("neither file nor URL specified")
 	}
 }
 
-func (p providerDefinition) fetchURLContent() (io.ReadCloser, error) {
+func (p ProviderDefinition) fetchURLContent(version string) (io.ReadCloser, error) {
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, p.URL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)

@@ -1,4 +1,4 @@
-package main
+package provider
 
 import (
 	"bufio"
@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/Luzifer/named-blacklist/pkg/config"
+	"github.com/Luzifer/named-blacklist/pkg/helpers"
 	"github.com/sirupsen/logrus"
 )
 
@@ -15,8 +17,8 @@ func init() {
 
 type providerHostFile struct{}
 
-func (providerHostFile) GetDomainList(d providerDefinition) ([]entry, error) {
-	r, err := d.GetContent()
+func (providerHostFile) GetDomainList(appVersion string, d config.ProviderDefinition) ([]Entry, error) {
+	r, err := d.GetContent(appVersion)
 	if err != nil {
 		return nil, fmt.Errorf("getting source content: %w", err)
 	}
@@ -30,7 +32,7 @@ func (providerHostFile) GetDomainList(d providerDefinition) ([]entry, error) {
 	logger := logrus.WithField("provider", d.Name)
 
 	var (
-		entries []entry
+		entries []Entry
 		matcher = regexp.MustCompile(`^(?:[0-9.]+|[a-z0-9:]+)\s+([^\s]+)(?:\s+#(.+)|\s+#)?$`)
 	)
 
@@ -38,7 +40,7 @@ func (providerHostFile) GetDomainList(d providerDefinition) ([]entry, error) {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 
-		if lineIsComment(line) {
+		if helpers.LineIsComment(line) {
 			continue
 		}
 
@@ -53,7 +55,7 @@ func (providerHostFile) GetDomainList(d providerDefinition) ([]entry, error) {
 			continue
 		}
 
-		if isBlacklisted(groups[1]) {
+		if helpers.IsBlacklisted(groups[1]) {
 			logger.WithField("domain", groups[1]).Debug("Skipping because of blacklist")
 			continue
 		}
@@ -66,7 +68,7 @@ func (providerHostFile) GetDomainList(d providerDefinition) ([]entry, error) {
 			)
 		}
 
-		entries = append(entries, entry{
+		entries = append(entries, Entry{
 			Domain:   groups[1],
 			Comments: []string{comment},
 		})

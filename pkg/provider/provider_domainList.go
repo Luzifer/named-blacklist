@@ -1,10 +1,12 @@
-package main
+package provider
 
 import (
 	"bufio"
 	"fmt"
 	"strings"
 
+	"github.com/Luzifer/named-blacklist/pkg/config"
+	"github.com/Luzifer/named-blacklist/pkg/helpers"
 	"github.com/sirupsen/logrus"
 )
 
@@ -14,8 +16,8 @@ func init() {
 
 type providerdomainList struct{}
 
-func (providerdomainList) GetDomainList(d providerDefinition) ([]entry, error) {
-	r, err := d.GetContent()
+func (providerdomainList) GetDomainList(appVersion string, d config.ProviderDefinition) ([]Entry, error) {
+	r, err := d.GetContent(appVersion)
 	if err != nil {
 		return nil, fmt.Errorf("getting source content: %w", err)
 	}
@@ -27,11 +29,11 @@ func (providerdomainList) GetDomainList(d providerDefinition) ([]entry, error) {
 
 	logger := logrus.WithField("provider", d.Name)
 
-	var entries []entry
+	var entries []Entry
 
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
-		if lineIsComment(scanner.Text()) {
+		if helpers.LineIsComment(scanner.Text()) {
 			continue
 		}
 
@@ -42,12 +44,12 @@ func (providerdomainList) GetDomainList(d providerDefinition) ([]entry, error) {
 			continue
 		}
 
-		if isBlacklisted(domain) {
+		if helpers.IsBlacklisted(domain) {
 			logger.WithField("domain", domain).Debug("skipping because of blacklist")
 			continue
 		}
 
-		entries = append(entries, entry{
+		entries = append(entries, Entry{
 			Domain:   domain,
 			Comments: []string{d.Name},
 		})
