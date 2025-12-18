@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Luzifer/named-blacklist/pkg/config"
+	"github.com/Luzifer/named-blacklist/pkg/fqdn"
 	"github.com/Luzifer/named-blacklist/pkg/helpers"
 	"github.com/sirupsen/logrus"
 )
@@ -57,6 +58,11 @@ func (providerHostFile) GetDomainList(appVersion string, d config.ProviderDefini
 
 		if helpers.IsBlacklisted(groups[1]) {
 			logger.WithField("domain", groups[1]).Debug("Skipping because of blacklist")
+			continue
+		}
+
+		if !fqdn.IsValidEntry(groups[1]) {
+			logger.WithField("domain", groups[1]).Debug("skipping because not a valid domain")
 			continue
 		}
 
