@@ -24,7 +24,7 @@ const (
 
 ; Blacklist entries
 {{ range .blacklist -}}
-{{ to_punycode .Domain }} CNAME . ; {{ .Comment }}
+{{ to_punycode .Domain }} CNAME . ; {{ .Comments }}
 {{ end }}`
 )
 
