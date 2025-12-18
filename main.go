@@ -40,11 +40,10 @@ func initApp() (err error) {
 
 func main() {
 	var (
-		blacklist []entry
-		whitelist []entry
-		write     = new(sync.Mutex)
-		wg        sync.WaitGroup
-		err       error
+		blacklist, whitelist []entry
+		write                = new(sync.Mutex)
+		wg                   sync.WaitGroup
+		err                  error
 	)
 
 	if err = initApp(); err != nil {
@@ -73,27 +72,19 @@ func main() {
 				logger.WithError(err).Fatal("getting domain list")
 			}
 
-			var local_blacklist []entry
-			var local_whitelist []entry
-
-			for _, e := range entries {
-				switch p.Action {
-				case providerActionBlacklist:
-					local_blacklist = append(local_blacklist, e)
-
-				case providerActionWhitelist:
-					local_whitelist = append(local_whitelist, e)
-
-				default:
-					logger.Fatalf("Inavlid action %q", p.Action)
-				}
-			}
-
 			write.Lock()
 			defer write.Unlock()
 
-			blacklist = append(blacklist, local_blacklist...)
-			whitelist = append(whitelist, local_whitelist...)
+			switch p.Action {
+			case providerActionBlacklist:
+				blacklist = append(blacklist, entries...)
+
+			case providerActionWhitelist:
+				whitelist = append(whitelist, entries...)
+
+			default:
+				logger.Fatalf("Inavlid action %q", p.Action)
+			}
 
 			logger.WithField("no_entries", len(entries)).Info("extraction complete")
 		}(p)
