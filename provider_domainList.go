@@ -35,7 +35,7 @@ func (providerdomainList) GetDomainList(d providerDefinition) ([]entry, error) {
 			continue
 		}
 
-		domain := strings.TrimSpace(scanner.Text())
+		domain := strings.TrimSpace(strings.Split(scanner.Text(), "#")[0])
 
 		if strings.Contains(domain, " ") {
 			logger.WithField("line", scanner.Text()).Warn("invalid line found")
