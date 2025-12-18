@@ -141,22 +141,15 @@ func cleanFromList(blacklist, whitelist []entry) []entry {
 func removeDuplicateEntries(list []entry) (unique []entry) {
 	keys := make(map[string]int)
 
-	// for every 'entry' in 'list'
 	for _, e := range list {
-
-		// if map 'keys' contains domain
 		i, contains := keys[e.Domain]
 		if contains {
 			unique[i].Comments = append(unique[i].Comments, e.Comments...)
+			continue
 		}
 
 		// store index for domain
-		// len 0 = index 0
-		// len 1 = index 1
-		// ...
 		keys[e.Domain] = len(unique)
-
-		// append domain to unique
 		unique = append(unique, e)
 	}
 
