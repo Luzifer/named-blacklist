@@ -40,11 +40,10 @@ func initApp() (err error) {
 
 func main() {
 	var (
-		blacklist []entry
-		whitelist []entry
-		write     = new(sync.Mutex)
-		wg        sync.WaitGroup
-		err       error
+		blacklist, whitelist []entry
+		write                = new(sync.Mutex)
+		wg                   sync.WaitGroup
+		err                  error
 	)
 
 	if err = initApp(); err != nil {
@@ -76,17 +75,15 @@ func main() {
 			write.Lock()
 			defer write.Unlock()
 
-			for _, e := range entries {
-				switch p.Action {
-				case providerActionBlacklist:
-					blacklist = addIfNotExists(blacklist, e)
+			switch p.Action {
+			case providerActionBlacklist:
+				blacklist = append(blacklist, entries...)
 
-				case providerActionWhitelist:
-					whitelist = addIfNotExists(whitelist, e)
+			case providerActionWhitelist:
+				whitelist = append(whitelist, entries...)
 
-				default:
-					logger.Fatalf("Inavlid action %q", p.Action)
-				}
+			default:
+				logger.Fatalf("Inavlid action %q", p.Action)
 			}
 
 			logger.WithField("no_entries", len(entries)).Info("extraction complete")
@@ -94,6 +91,11 @@ func main() {
 	}
 
 	wg.Wait()
+
+	logrus.Info("Removing duplicates...")
+	blacklist = removeDuplicateEntries(blacklist)
+	whitelist = removeDuplicateEntries(whitelist)
+	logrus.Info("Done")
 
 	blacklist = cleanFromList(blacklist, whitelist)
 
@@ -104,17 +106,6 @@ func main() {
 	}); err != nil {
 		logrus.WithError(err).Fatal("rendering blacklist")
 	}
-}
-
-func addIfNotExists(entries []entry, e entry) []entry {
-	for i, pe := range entries {
-		if pe.Domain == e.Domain {
-			entries[i].Comments = append(pe.Comments, e.Comments...) //nolint:gocritic // This accumulates comments on an existing entry
-			return entries
-		}
-	}
-
-	return append(entries, e)
 }
 
 func cleanFromList(blacklist, whitelist []entry) []entry {
@@ -136,4 +127,22 @@ func cleanFromList(blacklist, whitelist []entry) []entry {
 	}
 
 	return tmp
+}
+
+func removeDuplicateEntries(list []entry) (unique []entry) {
+	keys := make(map[string]int)
+
+	for _, e := range list {
+		i, contains := keys[e.Domain]
+		if contains {
+			unique[i].Comments = append(unique[i].Comments, e.Comments...)
+			continue
+		}
+
+		// store index for domain
+		keys[e.Domain] = len(unique)
+		unique = append(unique, e)
+	}
+
+	return unique
 }
