@@ -1,7 +1,7 @@
 dario.cat/mergo v1.0.2 h1:85+piFYR1tMbRrLcDwR18y4UKJ3aH1Tbzi24VRW1TK8=
 dario.cat/mergo v1.0.2/go.mod h1:E/hbnu0NxMFBjpMIE34DRGLWqDy0g5FuKDhCb31ngxA=
-github.com/Luzifer/go_helpers/v2 v2.25.0 h1:k1J4gd1+BfuokTDoWgcgib9P5mdadjzKEgbtKSVe46k=
-github.com/Luzifer/go_helpers/v2 v2.25.0/go.mod h1:KSVUdAJAav5cWGyB5oKGxmC27HrKULVTOxwPS/Kr+pc=
+github.com/Luzifer/go_helpers/v2 v2.25.2 h1:+Jep9wcaUQiTYAfrbUpAuGsKhcCd/+s7NdU7HPNwJos=
+github.com/Luzifer/go_helpers/v2 v2.25.2/go.mod h1:paTKeBe4OheFvMUfuzX5Wzt+piacG4rz96rOGciJu44=
 github.com/Luzifer/korvike/functions v1.0.2 h1:Higwd9CVI03MioXYL8mttAsNBWUfAheKJx1ECaGIcAY=
 github.com/Luzifer/korvike/functions v1.0.2/go.mod h1:4cNc+vPr4Ag83P5ASdk5QDnPOJLGxhbcBqj5UMVeVVs=
 github.com/Luzifer/rconfig/v2 v2.6.1 h1:n8iAygRdri/yRqhOYtU80TcWyrzuEpeIhBmdseVtZo8=
