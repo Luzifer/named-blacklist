@@ -7,7 +7,7 @@ toolchain go1.25.7
 require (
 	github.com/Luzifer/go_helpers/v2 v2.25.0
 	github.com/Luzifer/korvike/functions v1.0.2
-	github.com/Luzifer/rconfig/v2 v2.6.0
+	github.com/Luzifer/rconfig/v2 v2.6.1
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/net v0.49.0
@@ -48,7 +48,8 @@ require (
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
-	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
+	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
