@@ -2,11 +2,10 @@ package helpers
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"golang.org/x/net/idna"
-
-	"github.com/Luzifer/go_helpers/v2/str"
 )
 
 // GenericBlacklist contains a list of entries not to include in any
@@ -34,7 +33,7 @@ func LineIsComment(line string) bool {
 
 // IsBlacklisted checks an entry against the GenericBlacklist
 func IsBlacklisted(domain string) bool {
-	return str.StringInSlice(domain, GenericBlacklist)
+	return slices.Contains(GenericBlacklist, domain)
 }
 
 // DomainToPunycode converts a domain name into its punycode equivalent

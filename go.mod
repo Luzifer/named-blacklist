@@ -5,7 +5,6 @@ go 1.24.0
 toolchain go1.26.0
 
 require (
-	github.com/Luzifer/go_helpers/v2 v2.25.2
 	github.com/Luzifer/korvike/functions v1.0.2
 	github.com/Luzifer/rconfig/v2 v2.6.1
 	github.com/sirupsen/logrus v1.9.4
