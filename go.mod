@@ -1,6 +1,6 @@
 module github.com/Luzifer/named-blacklist
 
-go 1.24.0
+go 1.25.0
 
 toolchain go1.26.0
 
@@ -9,7 +9,7 @@ require (
 	github.com/Luzifer/rconfig/v2 v2.6.1
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/net v0.50.0
+	golang.org/x/net v0.51.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
