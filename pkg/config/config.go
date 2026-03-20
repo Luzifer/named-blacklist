@@ -43,12 +43,13 @@ type (
 
 	// ProviderDefinition describes a provider to use for gathering domains
 	ProviderDefinition struct {
-		Action  ProviderAction `yaml:"action"`
-		Content string         `yaml:"content"`
-		File    string         `yaml:"file"`
-		Name    string         `yaml:"name"`
-		Type    ProviderType   `yaml:"type"`
-		URL     string         `yaml:"url"`
+		Action     ProviderAction `yaml:"action"`
+		Content    string         `yaml:"content"`
+		File       string         `yaml:"file"`
+		MinMatches int            `yaml:"min_matches"`
+		Name       string         `yaml:"name"`
+		Type       ProviderType   `yaml:"type"`
+		URL        string         `yaml:"url"`
 	}
 
 	// ProviderType defines the type of provider to execute for this list
@@ -79,6 +80,12 @@ func LoadConfigFile(filename string) (*File, error) {
 		return nil, fmt.Errorf("parsing config file: %w", err)
 	}
 
+	for _, p := range out.Providers {
+		if p.MinMatches < 1 {
+			return nil, fmt.Errorf("validating providers: provider %q has invalid min_matches %d", p.Name, p.MinMatches)
+		}
+	}
+
 	funcs := korvike.GetFunctionMap()
 	funcs["to_punycode"] = helpers.DomainToPunycode
 	funcs["join"] = strings.Join
@@ -95,6 +102,41 @@ func LoadConfigFile(filename string) (*File, error) {
 	}
 
 	return out, nil
+}
+
+// UnmarshalYAML applies config defaults while still allowing validation to
+// distinguish between omitted and explicitly configured values.
+func (p *ProviderDefinition) UnmarshalYAML(node *yaml.Node) error {
+	raw := struct {
+		Action     ProviderAction `yaml:"action"`
+		Content    string         `yaml:"content"`
+		File       string         `yaml:"file"`
+		MinMatches *int           `yaml:"min_matches"`
+		Name       string         `yaml:"name"`
+		Type       ProviderType   `yaml:"type"`
+		URL        string         `yaml:"url"`
+	}{
+		MinMatches: nil,
+	}
+
+	if err := node.Decode(&raw); err != nil {
+		return fmt.Errorf("decoding yaml: %w", err)
+	}
+
+	*p = ProviderDefinition{
+		Action:     raw.Action,
+		Content:    raw.Content,
+		File:       raw.File,
+		MinMatches: 1,
+		Name:       raw.Name,
+		Type:       raw.Type,
+		URL:        raw.URL,
+	}
+	if raw.MinMatches != nil {
+		p.MinMatches = *raw.MinMatches
+	}
+
+	return nil
 }
 
 // GetContent retrieves the content of the given list for parsing with

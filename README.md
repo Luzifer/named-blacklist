@@ -40,3 +40,16 @@ $TTL 1H
 000.gaysexe.free.fr CNAME . ; From: "Mitchell Krog's - Badd Boyz Hosts"
 [...]
 ```
+
+## Provider thresholds
+
+Each provider can define an optional `min_matches` value. It defaults to `1`,
+which keeps the previous behavior.
+
+For blacklist providers, a domain is included when the number of blacklist
+providers containing that domain is greater than or equal to the lowest
+`min_matches` value among those matching providers. This allows trusted feeds
+to stay at `1` while noisier feeds can require `2` or `3` matching providers.
+
+Whitelist providers also accept `min_matches`, but the value is ignored:
+whitelisted domains are always removed from the final blacklist.
