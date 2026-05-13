@@ -1,14 +1,15 @@
+// Blacklist generator for bind9
 package main
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/Luzifer/rconfig/v2"
 	"github.com/sirupsen/logrus"
 
 	"github.com/Luzifer/named-blacklist/pkg/config"
 	"github.com/Luzifer/named-blacklist/pkg/generator"
-	"github.com/Luzifer/rconfig/v2"
 )
 
 var (
@@ -46,7 +47,7 @@ func main() {
 	}
 
 	if cfg.VersionAndExit {
-		fmt.Printf("named-blacklist %s\n", version) //nolint:forbidigo
+		fmt.Printf("named-blacklist %s\n", version) //nolint:forbidigo // printing version to stdout is fine
 		os.Exit(0)
 	}
 

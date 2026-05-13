@@ -4,10 +4,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Luzifer/named-blacklist/pkg/config"
-	"github.com/Luzifer/named-blacklist/pkg/provider"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Luzifer/named-blacklist/pkg/config"
+	"github.com/Luzifer/named-blacklist/pkg/provider"
 )
 
 func TestGenerateBlacklistDefaultBehavior(t *testing.T) {

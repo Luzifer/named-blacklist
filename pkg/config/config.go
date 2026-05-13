@@ -1,3 +1,4 @@
+// Package config loads and validates named-blacklist configuration files.
 package config
 
 import (
@@ -10,10 +11,10 @@ import (
 	"strings"
 	"text/template"
 
+	korvike "github.com/Luzifer/korvike/functions"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
-	korvike "github.com/Luzifer/korvike/functions"
 	"github.com/Luzifer/named-blacklist/pkg/helpers"
 )
 
@@ -27,6 +28,13 @@ const (
 {{ range .blacklist -}}
 {{ to_punycode .Domain }} CNAME . ; {{ .Comments }}
 {{ end }}`
+)
+
+const (
+	// ProviderActionBlacklist defines all domain results should be blocked
+	ProviderActionBlacklist ProviderAction = "blacklist"
+	// ProviderActionWhitelist defines all domain results should be unblocked
+	ProviderActionWhitelist ProviderAction = "whitelist"
 )
 
 type (
@@ -54,13 +62,6 @@ type (
 
 	// ProviderType defines the type of provider to execute for this list
 	ProviderType string
-)
-
-const (
-	// ProviderActionBlacklist defines all domain results should be blocked
-	ProviderActionBlacklist ProviderAction = "blacklist"
-	// ProviderActionWhitelist defines all domain results should be unblocked
-	ProviderActionWhitelist ProviderAction = "whitelist"
 )
 
 // LoadConfigFile reads the configuration and parses the template
@@ -104,6 +105,28 @@ func LoadConfigFile(filename string) (*File, error) {
 	return out, nil
 }
 
+// GetContent retrieves the content of the given list for parsing with
+// a provider
+func (p ProviderDefinition) GetContent(appVersion string) (io.ReadCloser, error) {
+	switch {
+	case p.Content != "":
+		return io.NopCloser(strings.NewReader(p.Content)), nil
+
+	case p.File != "":
+		f, err := os.Open(p.File)
+		if err != nil {
+			return nil, fmt.Errorf("opening file: %w", err)
+		}
+		return f, nil
+
+	case p.URL != "":
+		return p.fetchURLContent(appVersion)
+
+	default:
+		return nil, fmt.Errorf("neither file nor URL specified")
+	}
+}
+
 // UnmarshalYAML applies config defaults while still allowing validation to
 // distinguish between omitted and explicitly configured values.
 func (p *ProviderDefinition) UnmarshalYAML(node *yaml.Node) error {
@@ -137,28 +160,6 @@ func (p *ProviderDefinition) UnmarshalYAML(node *yaml.Node) error {
 	}
 
 	return nil
-}
-
-// GetContent retrieves the content of the given list for parsing with
-// a provider
-func (p ProviderDefinition) GetContent(appVersion string) (io.ReadCloser, error) {
-	switch {
-	case p.Content != "":
-		return io.NopCloser(strings.NewReader(p.Content)), nil
-
-	case p.File != "":
-		f, err := os.Open(p.File)
-		if err != nil {
-			return nil, fmt.Errorf("opening file: %w", err)
-		}
-		return f, nil
-
-	case p.URL != "":
-		return p.fetchURLContent(appVersion)
-
-	default:
-		return nil, fmt.Errorf("neither file nor URL specified")
-	}
 }
 
 func (p ProviderDefinition) fetchURLContent(version string) (io.ReadCloser, error) {

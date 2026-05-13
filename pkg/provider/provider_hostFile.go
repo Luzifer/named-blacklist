@@ -6,17 +6,18 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/Luzifer/named-blacklist/pkg/config"
 	"github.com/Luzifer/named-blacklist/pkg/fqdn"
 	"github.com/Luzifer/named-blacklist/pkg/helpers"
-	"github.com/sirupsen/logrus"
 )
+
+type providerHostFile struct{}
 
 func init() {
 	registerProvider("hosts-file", providerHostFile{})
 }
-
-type providerHostFile struct{}
 
 func (providerHostFile) GetDomainList(appVersion string, d config.ProviderDefinition) ([]Entry, error) {
 	r, err := d.GetContent(appVersion)
@@ -51,7 +52,7 @@ func (providerHostFile) GetDomainList(appVersion string, d config.ProviderDefini
 		}
 
 		groups := matcher.FindStringSubmatch(line)
-		if len(groups) < 2 { //nolint:mnd
+		if len(groups) < 2 {
 			logger.WithField("line", line).Warn("Invalid line found (groups)")
 			continue
 		}
@@ -67,7 +68,7 @@ func (providerHostFile) GetDomainList(appVersion string, d config.ProviderDefini
 		}
 
 		comment := fmt.Sprintf("%q", d.Name)
-		if len(groups) == 3 && strings.Trim(groups[2], "#") != "" {
+		if len(groups) == 3 && strings.Trim(groups[2], "#") != "" { //revive:disable-line:add-constant // just a group count
 			comment = fmt.Sprintf("%s, Comment: %q",
 				comment,
 				strings.TrimSpace(strings.Trim(groups[2], "#")),

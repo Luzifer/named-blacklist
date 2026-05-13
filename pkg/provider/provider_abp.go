@@ -5,17 +5,18 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/Luzifer/named-blacklist/pkg/config"
 	"github.com/Luzifer/named-blacklist/pkg/fqdn"
 	"github.com/Luzifer/named-blacklist/pkg/helpers"
-	"github.com/sirupsen/logrus"
 )
+
+type providerAdblockPlus struct{}
 
 func init() {
 	registerProvider("adblock-plus", providerAdblockPlus{})
 }
-
-type providerAdblockPlus struct{}
 
 func (providerAdblockPlus) GetDomainList(appVersion string, d config.ProviderDefinition) ([]Entry, error) {
 	r, err := d.GetContent(appVersion)

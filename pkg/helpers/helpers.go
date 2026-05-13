@@ -1,3 +1,4 @@
+// Package helpers provides shared domain and list filtering helpers.
 package helpers
 
 import (

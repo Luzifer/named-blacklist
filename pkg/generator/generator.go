@@ -1,3 +1,4 @@
+// Package generator compiles provider results into the final blacklist.
 package generator
 
 import (
@@ -6,9 +7,10 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/Luzifer/named-blacklist/pkg/config"
 	"github.com/Luzifer/named-blacklist/pkg/provider"
-	"github.com/sirupsen/logrus"
 )
 
 type (

@@ -1,3 +1,4 @@
+// Package provider registers and executes domain list providers.
 package provider
 
 import (
@@ -5,11 +6,6 @@ import (
 	"sync"
 
 	"github.com/Luzifer/named-blacklist/pkg/config"
-)
-
-var (
-	providerRegistry     = map[config.ProviderType]Provider{}
-	providerRegistryLock sync.Mutex
 )
 
 type (
@@ -22,8 +18,14 @@ type (
 
 	// Provider represents a source of domain Entries
 	Provider interface {
+		// GetDomainList extracts domain entries from the configured provider source.
 		GetDomainList(appVersion string, pd config.ProviderDefinition) ([]Entry, error)
 	}
+)
+
+var (
+	providerRegistry     = make(map[config.ProviderType]Provider)
+	providerRegistryLock sync.Mutex
 )
 
 // GetDomainList executes the provider given through the passed definition

@@ -1,3 +1,4 @@
+// Package fqdn validates fully qualified domain name entries.
 package fqdn
 
 import (
@@ -6,6 +7,11 @@ import (
 	"unicode"
 
 	"golang.org/x/net/idna"
+)
+
+const (
+	maxDomainNameLength  = 253
+	maxDomainLabelLength = 63
 )
 
 // IsValidEntry checks the domain names against a validation subset in
@@ -24,7 +30,7 @@ func isValidForPlainASCIICheck(input string) bool {
 	input = strings.TrimSpace(input)
 
 	// Reject empty or obviously bogus
-	if input == "" || len(input) > 253 {
+	if input == "" || len(input) > maxDomainNameLength {
 		return false
 	}
 
@@ -37,12 +43,12 @@ func isValidForPlainASCIICheck(input string) bool {
 	input = strings.TrimSuffix(input, ".")
 
 	labels := strings.Split(input, ".")
-	if len(labels) < 2 { //nolint:mnd
+	if len(labels) < 2 {
 		return false
 	}
 
 	for _, label := range labels {
-		if len(label) < 1 || len(label) > 63 {
+		if len(label) < 1 || len(label) > maxDomainLabelLength {
 			return false
 		}
 

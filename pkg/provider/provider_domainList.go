@@ -5,17 +5,18 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/Luzifer/named-blacklist/pkg/config"
 	"github.com/Luzifer/named-blacklist/pkg/fqdn"
 	"github.com/Luzifer/named-blacklist/pkg/helpers"
-	"github.com/sirupsen/logrus"
 )
+
+type providerdomainList struct{}
 
 func init() {
 	registerProvider("domain-list", providerdomainList{})
 }
-
-type providerdomainList struct{}
 
 func (providerdomainList) GetDomainList(appVersion string, d config.ProviderDefinition) ([]Entry, error) {
 	r, err := d.GetContent(appVersion)
