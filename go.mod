@@ -5,7 +5,7 @@ go 1.26.0
 toolchain go1.26.4
 
 require (
-	github.com/Luzifer/korvike/functions v1.0.3
+	github.com/Luzifer/korvike/functions v1.2.0
 	github.com/Luzifer/rconfig/v2 v2.6.2
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
