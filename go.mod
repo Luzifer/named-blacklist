@@ -2,7 +2,7 @@ module github.com/Luzifer/named-blacklist
 
 go 1.26.0
 
-toolchain go1.27.2
+toolchain go1.27.3
 
 require (
 	github.com/Luzifer/korvike/functions v1.2.1
